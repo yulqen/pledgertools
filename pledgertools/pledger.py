@@ -20,7 +20,7 @@ def splat_date_str(d: str) -> datetime.date:
         int(d_list[0]))
 
 
-def parse(csv_file) -> None:
+def parse(csv_file) -> list:
     with open(csv_file, 'r') as cf:
         csv_reader = csv.reader(cf)
         return [LedgerLine(
