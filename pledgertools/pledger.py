@@ -21,14 +21,10 @@ def splat_date_str(d: str) -> datetime.date:
 
 
 def parse(csv_file) -> None:
-    r = []
     with open(csv_file, 'r') as cf:
         csv_reader = csv.reader(cf)
-        for line in csv_reader:
-            r.append(LedgerLine(
-                date=splat_date_str(line[0]),
-                description=line[1],
-                transaction_type=line[2],
-                total=float(line[3])
-            ))
-        return r
+        return [LedgerLine(
+                    date=splat_date_str(line[0]),
+                    description=line[1],
+                    transaction_type=line[2],
+                    total=float(line[3])) for line in csv_reader]
