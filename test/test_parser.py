@@ -23,6 +23,54 @@ def cleaned_csv_file() -> None:
     os.unlink(os.path.join(TMP_DIR, 'test_journal'))
 
 
+@pytest.fixture
+def incorrect_first_field() -> None:
+    """
+    Mocks a cleaned csv file downloaded from HSCB but includes fields that
+    are the incorrect type.
+    """
+    with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
+        tf.write("2017,SAINSBURYS S/MKTS LONDON  SE12,VIS,WRONG\n")
+    yield os.path.join(TMP_DIR, 'test_journal')
+    os.unlink(os.path.join(TMP_DIR, 'test_journal'))
+
+
+@pytest.fixture
+def incorrect_second_field() -> None:
+    """
+    Mocks a cleaned csv file downloaded from HSCB but includes fields that
+    are the incorrect type.
+    """
+    with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
+        tf.write("28/06/2017,23.1,SAINSBURYS S/MKTS LONDON  SE12,VIS,-6.20\n")
+    yield os.path.join(TMP_DIR, 'test_journal')
+    os.unlink(os.path.join(TMP_DIR, 'test_journal'))
+
+
+@pytest.fixture
+def incorrect_third_field() -> None:
+    """
+    Mocks a cleaned csv file downloaded from HSCB but includes fields that
+    are the incorrect type.
+    """
+    with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
+        tf.write("28/06/2017,SAINSBURYS S/MKTS LONDON  SE12,20,VIS,-6.20\n")
+    yield os.path.join(TMP_DIR, 'test_journal')
+    os.unlink(os.path.join(TMP_DIR, 'test_journal'))
+
+
+@pytest.fixture
+def incorrect_fourth_field() -> None:
+    """
+    Mocks a cleaned csv file downloaded from HSCB but includes fields that
+    are the incorrect type.
+    """
+    with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
+        tf.write("28/06/2017,SAINSBURYS S/MKTS LONDON  SE12,VIS,WRONG\n")
+    yield os.path.join(TMP_DIR, 'test_journal')
+    os.unlink(os.path.join(TMP_DIR, 'test_journal'))
+
+
 def test_date(cleaned_csv_file) -> None:
     parsed = pledger.parse(cleaned_csv_file)
     assert parsed[0].date == date(2017, 6, 28)
@@ -49,3 +97,23 @@ def test_cost_amount(cleaned_csv_file) -> None:
     assert parsed[1].total == -49.00
     assert parsed[2].total == -26.35
     assert parsed[3].total == -86.00
+
+
+def test_first_field_is_not_date(incorrect_first_field) -> None:
+    with pytest.raises(IndexError):
+        pledger.parse(incorrect_first_field)
+
+
+def test_second_field_is_wrong_type(incorrect_second_field) -> None:
+    with pytest.raises(ValueError):
+        pledger.parse(incorrect_second_field)
+
+
+def test_third_field_is_wrong_type(incorrect_third_field) -> None:
+    with pytest.raises(ValueError):
+        pledger.parse(incorrect_third_field)
+
+
+def test_fourth_field_is_wrong_type(incorrect_fourth_field) -> None:
+    with pytest.raises(ValueError):
+        pledger.parse(incorrect_fourth_field)
