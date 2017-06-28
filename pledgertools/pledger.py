@@ -26,5 +26,9 @@ def parse(csv_file) -> None:
         csv_reader = csv.reader(cf)
         for line in csv_reader:
             r.append(LedgerLine(
-                splat_date_str(line[0]), line[1], line[2], float(line[3])))
+                date=splat_date_str(line[0]),
+                description=line[1],
+                transaction_type=line[2],
+                total=float(line[3])
+            ))
         return r
