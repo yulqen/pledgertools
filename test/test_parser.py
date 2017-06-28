@@ -4,8 +4,7 @@ from datetime import date
 
 import pytest
 
-
-from pledgertools.pledger import parse
+import pledgertools.pledger as pledger
 
 TMP_DIR = gettempdir()
 
@@ -25,27 +24,27 @@ def journal_file() -> None:
 
 
 def test_date(journal_file) -> None:
-    parsed = parse(journal_file)
+    parsed = pledger.parse(journal_file)
     assert parsed[0].date == date(2017, 6, 28)
     assert parsed[3].date == date(2017, 6, 27)
 
 
 def test_description(journal_file) -> None:
-    parsed = parse(journal_file)
+    parsed = pledger.parse(journal_file)
     assert parsed[0].description == "SAINSBURYS S/MKTS LONDON  SE12"
     assert parsed[1].description == "WWW.CALMAC.CO.UK INTERNET"
     assert parsed[2].description == "VODAFONE LTD"
 
 
 def test_transaction_type(journal_file) -> None:
-    parsed = parse(journal_file)
+    parsed = pledger.parse(journal_file)
     assert parsed[0].transaction_type == "VIS"
     assert parsed[1].transaction_type == "VIS"
     assert parsed[2].transaction_type == "DD"
 
 
 def test_cost_amount(journal_file) -> None:
-    parsed = parse(journal_file)
+    parsed = pledger.parse(journal_file)
     assert parsed[0].total == -6.20
     assert parsed[1].total == -49.00
     assert parsed[2].total == -26.35
