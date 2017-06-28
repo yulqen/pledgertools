@@ -10,7 +10,7 @@ TMP_DIR = gettempdir()
 
 
 @pytest.fixture
-def journal_file() -> None:
+def cleaned_csv_file() -> None:
     """
     Mocks a cleaned csv downloaded from HSBC.
     """
@@ -23,28 +23,28 @@ def journal_file() -> None:
     os.unlink(os.path.join(TMP_DIR, 'test_journal'))
 
 
-def test_date(journal_file) -> None:
-    parsed = pledger.parse(journal_file)
+def test_date(cleaned_csv_file) -> None:
+    parsed = pledger.parse(cleaned_csv_file)
     assert parsed[0].date == date(2017, 6, 28)
     assert parsed[3].date == date(2017, 6, 27)
 
 
-def test_description(journal_file) -> None:
-    parsed = pledger.parse(journal_file)
+def test_description(cleaned_csv_file) -> None:
+    parsed = pledger.parse(cleaned_csv_file)
     assert parsed[0].description == "SAINSBURYS S/MKTS LONDON  SE12"
     assert parsed[1].description == "WWW.CALMAC.CO.UK INTERNET"
     assert parsed[2].description == "VODAFONE LTD"
 
 
-def test_transaction_type(journal_file) -> None:
-    parsed = pledger.parse(journal_file)
+def test_transaction_type(cleaned_csv_file) -> None:
+    parsed = pledger.parse(cleaned_csv_file)
     assert parsed[0].transaction_type == "VIS"
     assert parsed[1].transaction_type == "VIS"
     assert parsed[2].transaction_type == "DD"
 
 
-def test_cost_amount(journal_file) -> None:
-    parsed = pledger.parse(journal_file)
+def test_cost_amount(cleaned_csv_file) -> None:
+    parsed = pledger.parse(cleaned_csv_file)
     assert parsed[0].total == -6.20
     assert parsed[1].total == -49.00
     assert parsed[2].total == -26.35
