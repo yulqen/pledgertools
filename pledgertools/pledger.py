@@ -10,6 +10,9 @@ class LedgerLine(NamedTuple):
     transaction_type: str
     total: float
 
+    def __repr__(self):
+        return f'<LedgerLine - {self.date}: {self.description}, {self.transaction_type} -> {self.total}>'
+
 
 def splat_date_str(d: str) -> datetime.date:
     """Converts a date string in format "dd/mm/yyyy" to a datetime.date obj."""
