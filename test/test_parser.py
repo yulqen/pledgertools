@@ -1,8 +1,9 @@
 import os
+from tempfile import gettempdir
+from datetime import date
 
 import pytest
 
-from tempfile import gettempdir
 
 from pledgertools.pledger import parse
 
@@ -15,7 +16,10 @@ def journal_file() -> None:
     Mocks a hledger journal file.
     """
     with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
-        tf.write("28/06/2017,SAINSBURYS S/MKTS LONDON  SE12,VIS,-6.20")
+        tf.write("28/06/2017,SAINSBURYS S/MKTS LONDON  SE12,VIS,-6.20\n")
+        tf.write("28/06/2017,WWW.CALMAC.CO.UK INTERNET,VIS,-49.00\n")
+        tf.write("28/06/2017,VODAFONE LTD,DD,-26.35\n")
+        tf.write("27/06/2017,VIRGINTRAINSEC SER YORK 4400,VIS,-86.00\n")
     yield os.path.join(TMP_DIR, 'test_journal')
     os.unlink(os.path.join(TMP_DIR, 'test_journal'))
 
@@ -23,3 +27,11 @@ def journal_file() -> None:
 def test_cost_amount(journal_file) -> None:
     parsed = parse(journal_file)
     assert parsed[0].total == -6.20
+    assert parsed[1].total == -49.00
+    assert parsed[2].total == -26.35
+    assert parsed[3].total == -86.00
+
+
+def test_date(journal_file) -> None:
+    parsed = parse(journal_file)
+    assert parsed[0].date == date(2017, 6, 28)
