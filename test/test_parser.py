@@ -71,6 +71,7 @@ def incorrect_fourth_field() -> None:
     yield os.path.join(TMP_DIR, 'test_journal')
     os.unlink(os.path.join(TMP_DIR, 'test_journal'))
 
+
 @pytest.fixture
 def journal() -> None:
     with open(os.path.join(TMP_DIR, 'test_ledger_journal'), 'w') as tf:
@@ -79,6 +80,7 @@ def journal() -> None:
             expenses:gifts                      12.90
             assets:hsbc current                 -12.90
         """)
+
 
 def test_date(cleaned_csv_file) -> None:
     parsed = pledger.parse_csv(cleaned_csv_file)
@@ -127,24 +129,28 @@ def test_fourth_field_is_wrong_type(incorrect_fourth_field) -> None:
     with pytest.raises(ValueError):
         pledger.parse_csv(incorrect_fourth_field)
 
-def test_journal_date_regex():
+
+def test_journal_date_regex() -> None:
     d_reg = re.match(pledger.journal_date_regex, '2016/06/30')
     assert d_reg
 
-def test_bad_date():
+
+def test_bad_date() -> None:
     assert not pledger.date_format_checker('2016/13/01')
     assert not pledger.date_format_checker('2016/20/03')
     assert not pledger.date_format_checker('2016/12/32')
     assert not pledger.date_format_checker('2016/14/32')
 
-def test_good_date():
+
+def test_good_date() -> None:
     assert pledger.date_format_checker('2016/01/01')
     assert pledger.date_format_checker('2016/02/29')
 
-def test_good_month_bad_day():
+
+def test_good_month_bad_day() -> None:
     assert not pledger.date_format_checker('2016/02/30')
     assert not pledger.date_format_checker('2017/04/31')
 
-#def test_date_field_from_journal_file(journal) -> None:
+# def test_date_field_from_journal_file(journal) -> None:
 #   parsed = pledger.parse_journal(journal)
 #   assert parsed[0].date == date(2017, 6, 30)

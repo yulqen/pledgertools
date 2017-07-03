@@ -27,6 +27,12 @@ def splat_date_str(d: str) -> datetime.date:
 
 
 def parse_csv(csv_file) -> list:
+    """
+    Parses the CSV file made available at HSBC (following cleaning) into
+    a list of BankCSVLine objects which hold data about the transaction.
+    :param csv_file:
+    :return:
+    """
     with open(csv_file, 'r') as cf:
         csv_reader = csv.reader(cf)
         return [BankCSVLine(
@@ -37,6 +43,12 @@ def parse_csv(csv_file) -> list:
 
 
 def date_format_checker(date: str) -> bool:
+    """
+    Given a date in 'yyyy/mm/dd', 'yyyy.mm.dd' or 'yyyy-mm-dd' format,
+    checks whether the date is a valid one.
+    :param date:
+    :return: bool
+    """
     m = re.match(journal_date_regex, date)
     if m:
         if int(m.group('month')) <= 12:
