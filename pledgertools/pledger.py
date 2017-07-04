@@ -7,7 +7,7 @@ journal_date_regex = re.compile(r'^(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\
 
 
 class BankCSVLine(NamedTuple):
-    """Represents a single line from hledger journal file."""
+    """Represents a single line in a CSV file downloaded from the bank."""
     date: datetime.date
     description: str
     transaction_type: str
