@@ -1,9 +1,54 @@
 import csv
-import re
-from typing import NamedTuple
 import datetime
+import re
+from reprlib import repr
+from typing import NamedTuple
 
 journal_date_regex = re.compile(r'^(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2})')
+
+DATE = r'^(?P<DATE>(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2}))'
+WS = r'(?P<WS>\s+)'
+ST = r'(?P<ST>\*)'
+NL = r'(?P<NL>\\n)'
+WORD = r'(?P<WORD>\w+)'
+
+master_pat = re.compile('|'.join([DATE, WS, ST, NL, WORD]))
+
+
+class Token(NamedTuple):
+    type: str
+    value: str
+
+
+def generate_tokens(text):
+    scanner = master_pat.scanner(text)
+    for m in iter(scanner.match, None):
+        yield Token(m.lastgroup, m.group())
+
+
+class Transaction:
+    """
+    A Journal comprises many listed Transactions, each of which describes the transaction in terms
+    of date, description, type, status. Each transaction involves zero or more "postings"
+    http://hledger.org/manual.html#journal-format
+    """
+
+    def __init__(
+            self,
+            date: str,
+            status: str,
+            code: str,
+            description: str
+    ):
+        self.date = splat_date_str(date)
+        self.date_str = date
+        self.status = status
+        self.code = code
+        self.description = description
+        self.postings = []
+
+    def __repr__(self):
+        return repr(f"<Transaction: {self.date_str} - {self.description}")
 
 
 class BankCSVLine(NamedTuple):

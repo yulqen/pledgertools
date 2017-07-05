@@ -1,7 +1,7 @@
 import os
 import re
-from tempfile import gettempdir
 from datetime import date
+from tempfile import gettempdir
 
 import pytest
 
@@ -151,6 +151,22 @@ def test_good_month_bad_day() -> None:
     assert not pledger.date_format_checker('2016/02/30')
     assert not pledger.date_format_checker('2017/04/31')
 
-# def test_date_field_from_journal_file(journal) -> None:
-#   parsed = pledger.parse_journal(journal)
-#   assert parsed[0].date == date(2017, 6, 30)
+
+def test_token_parse_text_types() -> None:
+    t = """2017/07/05 Tiger stuff
+        expenses:joanna business:materials                  12
+        assets:hsbc current                                 -12.0
+    """
+    p = pledger.generate_tokens(t)
+    assert next(p).type == "DATE"
+    assert next(p).type == "WS"
+
+
+def test_token_parse_text_values() -> None:
+    t = """2017/07/05 Tiger stuff
+        expenses:joanna business:materials                  12
+        assets:hsbc current                                 -12.0
+    """
+    p = pledger.generate_tokens(t)
+    assert next(p).value == '2017/07/05'
+    assert next(p).value == ' '
