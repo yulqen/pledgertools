@@ -30,7 +30,6 @@ def generate_tokens(text):
 def detect_currency_symbol(journal_str: str) -> bool:
     parsed = [s for s in journal_str if unicodedata.category(s) == "Sc"]
     if len(parsed) > 0:
-        print(parsed)
         return True
     else:
         return False
