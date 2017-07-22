@@ -9,6 +9,11 @@ import pledgertools.pledger as pledger
 
 TMP_DIR = gettempdir()
 
+JOURNAL_ENTRY = """2017/07/05 * Tiger stuff
+        expenses:joanna business:materials                  12
+        assets:hsbc current                                 -12.0
+    """
+
 
 @pytest.fixture
 def cleaned_csv_file() -> None:
@@ -153,20 +158,18 @@ def test_good_month_bad_day() -> None:
 
 
 def test_token_parse_text_types() -> None:
-    t = """2017/07/05 Tiger stuff
-        expenses:joanna business:materials                  12
-        assets:hsbc current                                 -12.0
-    """
-    p = pledger.generate_tokens(t)
+    p = pledger.generate_tokens(JOURNAL_ENTRY)
     assert next(p).type == "DATE"
     assert next(p).type == "WS"
+    assert next(p).type == "ST"
+    assert next(p).type == "WS"
+    assert next(p).type == "WORD"
 
 
 def test_token_parse_text_values() -> None:
-    t = """2017/07/05 Tiger stuff
-        expenses:joanna business:materials                  12
-        assets:hsbc current                                 -12.0
-    """
-    p = pledger.generate_tokens(t)
+    p = pledger.generate_tokens(JOURNAL_ENTRY)
     assert next(p).value == '2017/07/05'
     assert next(p).value == ' '
+    assert next(p).value == '*'
+    assert next(p).value == ' '
+    assert next(p).value == 'Tiger'
