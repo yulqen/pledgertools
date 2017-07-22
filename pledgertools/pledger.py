@@ -1,6 +1,7 @@
 import csv
 import datetime
 import re
+import unicodedata
 from reprlib import repr
 from typing import NamedTuple
 
@@ -24,6 +25,15 @@ def generate_tokens(text):
     scanner = master_pat.scanner(text)
     for m in iter(scanner.match, None):
         yield Token(m.lastgroup, m.group())
+
+
+def detect_currency_symbol(journal_str: str) -> bool:
+    parsed = [s for s in journal_str if unicodedata.category(s) == "Sc"]
+    if len(parsed) > 0:
+        print(parsed)
+        return True
+    else:
+        return False
 
 
 class Transaction:

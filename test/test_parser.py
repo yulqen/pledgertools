@@ -13,6 +13,10 @@ JOURNAL_ENTRY = """2017/07/05 * Tiger stuff
         expenses:joanna business:materials                  12
         assets:hsbc current                                 -12.0
     """
+JOURNAL_ENTRY2 = """2017/07/06 * McDonalds LUNCH
+        expenses:food:fast food                              5.99
+        assets:hsbc current                                 -5.99
+    """
 
 
 @pytest.fixture
@@ -173,3 +177,19 @@ def test_token_parse_text_values() -> None:
     assert next(p).value == '*'
     assert next(p).value == ' '
     assert next(p).value == 'Tiger'
+
+
+def test_detect_currency_symbol() -> None:
+    """
+    TODO: Tests needed for all these...
+    http://www.fileformat.info/info/unicode/category/Sc/list.htm.
+    :return:
+    """
+    p = "£5.99"
+    d = "$4.32"
+    e = "\u20ac69.34"  # EURO symbol
+    ps = "\u20b1200.23"  # Peso symbol
+    assert pledger.detect_currency_symbol(p) == True
+    assert pledger.detect_currency_symbol(d) == True
+    assert pledger.detect_currency_symbol(e) == True
+    assert pledger.detect_currency_symbol(ps) == True
