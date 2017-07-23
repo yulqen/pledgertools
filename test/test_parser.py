@@ -9,14 +9,12 @@ import pledgertools.pledger as pledger
 
 TMP_DIR = gettempdir()
 
-JOURNAL_ENTRY = """2017/07/05 * Tiger stuff
-        expenses:joanna business:materials                  12
-        assets:hsbc current                                 -12.0
-    """
-JOURNAL_ENTRY2 = """2017/07/06 * McDonalds LUNCH
-        expenses:food:fast food                              5.99
-        assets:hsbc current                                 -5.99
-    """
+JOURNAL_ENTRY = ("2017/07/05 * Tiger stuff\n"
+                 "expenses:joanna business:materials                  12\n"
+                 "assets:hsbc current                                 -12.0")
+JOURNAL_ENTRY2 = ("2017/07/06 * McDonalds LUNCH\n"
+                  "expenses:food:fast food                              £5.99\n"
+                  "assets:hsbc current                                 £-5.99")
 
 
 @pytest.fixture
@@ -83,12 +81,17 @@ def incorrect_fourth_field() -> None:
 
 @pytest.fixture
 def journal() -> None:
-    with open(os.path.join(TMP_DIR, 'test_ledger_journal'), 'w') as tf:
+    f = os.path.join(TMP_DIR, 'test_ledger_journal')
+    with open(f, 'w') as tf:
         tf.write("""
         2017/06/30 Zipadee Celery Ltd
             expenses:gifts                      12.90
             assets:hsbc current                 -12.90
         """)
+        tf.write(JOURNAL_ENTRY)
+        tf.write(JOURNAL_ENTRY2)
+    yield f
+    os.unlink(f)
 
 
 def test_date(cleaned_csv_file) -> None:
@@ -167,8 +170,9 @@ def test_token_parse_text_types() -> None:
     assert next(p).type == "WS"
     assert next(p).type == "ST"
     assert next(p).type == "WS"
-    assert next(p).type == "WORD"
-
+    # assert next(p).type == "WORD"
+    # assert next(p).type == "WS"
+    # assert next(p).type == "WORD"
 
 def test_token_parse_text_values() -> None:
     p = pledger.generate_tokens(JOURNAL_ENTRY)
@@ -177,6 +181,10 @@ def test_token_parse_text_values() -> None:
     assert next(p).value == '*'
     assert next(p).value == ' '
     assert next(p).value == 'Tiger'
+    assert next(p).value == ' '
+    assert next(p).value == 'stuff'
+    assert next(p).value == '\n'
+    assert next(p).value == "expenses:joanna business:materials"
 
 
 def test_detect_currency_symbol() -> None:
