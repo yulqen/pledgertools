@@ -6,13 +6,13 @@ from reprlib import repr
 from typing import NamedTuple
 
 journal_date_regex = re.compile(r'^(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2})')
-account_name_regex_with_cost = re.compile(r'(?:([\S ]+?))(?=[\:\ ])\s+(\d+\.\d+)')
+account_name_regex_with_cost = re.compile(r'(?:([\w :]+?))(?=[\:\ ])\s+(\d+\.\d+)')
 
-DATE = r'^(?P<DATE>(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2}))'
+DATE = r'(?P<DATE>(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2}))'
 NL = r'(?P<NL>\\n)'
 WS = r'(?P<WS>\s+)'
 ST = r'(?P<ST>\*)'
-ACNT_NAME = r'(?P<ACNT_NAME>(?:([\S ]+?))(?=[\:\ ])\s+(\d+\.\d+))'
+ACNT_NAME = r'(?P<ACNT_NAME>(?:([\w :]+?))(?=[\:\ ]))'
 WORD = r'(?P<WORD>\w+)'
 
 master_pat = re.compile('|'.join([ACNT_NAME, DATE, NL, WS, ST, WORD]))
@@ -26,7 +26,6 @@ class Token(NamedTuple):
 def generate_tokens(text):
     scanner = master_pat.scanner(text)
     for m in iter(scanner.match, None):
-        print(m)
         yield Token(m.lastgroup, m.group())
 
 
