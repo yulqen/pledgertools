@@ -9,8 +9,7 @@ import pledgertools.pledger as pledger
 
 TMP_DIR = gettempdir()
 
-JOURNAL_ENTRY = ("2017/07/05 * Tiger stuff\n"
-                 "expenses:joanna business:materials                  12.00\n"
+JOURNAL_ENTRY = ("2017/07/05 * Tiger stuff\nexpenses:joanna business:materials                  12.00\n"
                  "assets:hsbc current                                 -12.0")
 JOURNAL_ENTRY2 = ("2017/07/06 * McDonalds LUNCH\n"
                   "expenses:food:fast food                              £5.99\n"
@@ -170,9 +169,16 @@ def test_token_parse_text_types() -> None:
     assert next(p).type == "WS"
     assert next(p).type == "ST"
     assert next(p).type == "WS"
-    # assert next(p).type == "WORD"
-    # assert next(p).type == "WS"
-    # assert next(p).type == "WORD"
+    assert next(p).type == "WORD"
+    assert next(p).type == "WS"
+    assert next(p).type == "WORD"
+    assert next(p).type == "NL"
+    assert next(p).type == "WORD"
+    assert next(p).type == "COLON"
+    assert next(p).type == "WORD"
+    assert next(p).type == "WS"
+    assert next(p).type == "WORD"
+
 
 def test_token_parse_text_values() -> None:
     p = pledger.generate_tokens(JOURNAL_ENTRY)
@@ -184,7 +190,11 @@ def test_token_parse_text_values() -> None:
     assert next(p).value == ' '
     assert next(p).value == 'stuff'
     assert next(p).value == '\n'
-    assert next(p).value == "expenses:joanna business:materials"
+    assert next(p).value == "expenses"
+    assert next(p).value == ":"
+    assert next(p).value == "joanna"
+    assert next(p).value == ' '
+    assert next(p).value == "business"
 
 
 def test_detect_currency_symbol() -> None:
