@@ -14,8 +14,9 @@ ST = r'(?P<ST>\*)'
 WORD = r'(?P<WORD>\w+)'
 NEG = r'(?P<NEG>\-)'
 COLON = r'(?P<COLON>:)'
+PRICE = r'(?P<PRICE>\d+(?:\.\d{1,2})?)'
 
-master_pat = re.compile('|'.join([NEG, NL, DATE, COLON, WS, ST, WORD]))
+master_pat = re.compile('|'.join([NEG, NL, DATE, PRICE, COLON, WS, ST, WORD]))
 
 
 class Token(NamedTuple):

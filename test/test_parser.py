@@ -9,7 +9,8 @@ import pledgertools.pledger as pledger
 
 TMP_DIR = gettempdir()
 
-JOURNAL_ENTRY = ("2017/07/05 * Tiger stuff\nexpenses:joanna business:materials                  12.00\n"
+JOURNAL_ENTRY = ("2017/07/05 * Tiger stuff\n"
+                 "expenses:joanna business:materials                  12.00\n"
                  "assets:hsbc current                                 -12.0\n")
 JOURNAL_ENTRY2 = ("2017/07/06 * McDonalds LUNCH\n"
                   "expenses:food:fast food                              £5.99\n"
