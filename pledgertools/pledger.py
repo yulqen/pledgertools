@@ -7,7 +7,7 @@ from typing import NamedTuple
 
 journal_date_regex = re.compile(r'^(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2})')
 
-DATE = r'(?P<DATE>(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2}))'
+DATE = r'(?P<DATE>(?P<year>\d{4})+[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2}))'
 NL = r'(?P<NL>\n)'
 WS = r'(?P<WS>\s+)'
 ST = r'(?P<ST>\*)'

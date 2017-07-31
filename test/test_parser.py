@@ -180,6 +180,10 @@ def test_token_parse_text_types() -> None:
     assert next(p).type == "WORD"
     assert next(p).type == "WS"
     assert next(p).type == "WORD"
+    assert next(p).type == "COLON"
+    assert next(p).type == "WORD"
+    assert next(p).type == "WS"
+    assert next(p).type == "PRICE"
 
 
 def test_token_parse_text_values() -> None:
