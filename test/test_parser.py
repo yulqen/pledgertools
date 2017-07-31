@@ -10,11 +10,12 @@ import pledgertools.pledger as pledger
 TMP_DIR = gettempdir()
 
 JOURNAL_ENTRY = ("2017/07/05 * Tiger stuff\nexpenses:joanna business:materials                  12.00\n"
-                 "assets:hsbc current                                 -12.0")
+                 "assets:hsbc current                                 -12.0\n")
 JOURNAL_ENTRY2 = ("2017/07/06 * McDonalds LUNCH\n"
                   "expenses:food:fast food                              £5.99\n"
-                  "assets:hsbc current                                 £-5.99")
+                  "assets:hsbc current                                 £-5.99\n")
 
+MERGED_JOURNAL = "\n".join([JOURNAL_ENTRY, JOURNAL_ENTRY2])
 
 @pytest.fixture
 def cleaned_csv_file() -> None:
@@ -211,3 +212,9 @@ def test_detect_currency_symbol() -> None:
     assert pledger.detect_currency_symbol(d) == True
     assert pledger.detect_currency_symbol(e) == True
     assert pledger.detect_currency_symbol(ps) == True
+
+
+def test_merged_journal() -> None:
+    p = pledger.generate_tokens(MERGED_JOURNAL)
+    pl = list(p)
+    print(pl)

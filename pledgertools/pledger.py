@@ -12,9 +12,10 @@ NL = r'(?P<NL>\n)'
 WS = r'(?P<WS>\s+)'
 ST = r'(?P<ST>\*)'
 WORD = r'(?P<WORD>\w+)'
+NEG = r'(?P<NEG>\-)'
 COLON = r'(?P<COLON>:)'
 
-master_pat = re.compile('|'.join([NL, DATE, COLON, WS, ST, WORD]))
+master_pat = re.compile('|'.join([NEG, NL, DATE, COLON, WS, ST, WORD]))
 
 
 class Token(NamedTuple):
