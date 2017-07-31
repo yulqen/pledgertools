@@ -89,8 +89,7 @@ def journal() -> None:
             expenses:gifts                      12.90
             assets:hsbc current                 -12.90
         """)
-        tf.write(JOURNAL_ENTRY)
-        tf.write(JOURNAL_ENTRY2)
+        tf.write(MERGED_JOURNAL)
     yield f
     os.unlink(f)
 
@@ -202,6 +201,11 @@ def test_token_parse_text_values() -> None:
     assert next(p).value == ' '
     assert next(p).value == "business"
 
+
+def test_token_parse_negative_currency() -> None:
+    p = pledger.generate_tokens(JOURNAL_ENTRY2)
+    pl = list(p)
+    assert pl[-1] == pledger.Token(type='NL', value='\n')
 
 def test_detect_currency_symbol() -> None:
     """
