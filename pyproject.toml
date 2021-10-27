@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "pledgertools"
+version = "0.1.0"
+description = ""
+authors = ["Matthew Lemon <lemon@matthewlemon.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+black = "^21.9b0"
+pytest = "^6.2.5"
+ptpython = "^3.0.20"
+pdbpp = "^0.10.3"
+flake8 = "^4.0.1"
+mypy = "^0.910"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
