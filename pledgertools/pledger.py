@@ -91,7 +91,7 @@ def parse_csv(csv_file) -> list:
     :param csv_file:
     :return:
     """
-    with open(csv_file, "r") as cf:
+    with open(csv_file, "r", encoding="utf8") as cf:
         csv_reader = csv.reader(cf)
         return [
             BankCSVLine(

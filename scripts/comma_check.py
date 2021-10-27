@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 
-with open('/home/lemon/Downloads/TransHist.csv', 'r', encoding='utf-8') as f:
+import sys
+
+if sys.argv[-1].split("/")[-1] != "TransHist.csv":
+    print("Target file must be TransHist.csv")
+    sys.exit(1)
+
+with open(sys.argv[-1], "r", encoding="utf-8") as f:
     comma_count = 0
     for line in f.readlines():
         for char in line:
