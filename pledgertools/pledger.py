@@ -3,20 +3,22 @@ import datetime
 import re
 import unicodedata
 from reprlib import repr
-from typing import NamedTuple
+from typing import NamedTuple, Iterable
 
-journal_date_regex = re.compile(r'^(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2})')
+journal_date_regex = re.compile(
+    r"^(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2})"
+)
 
-DATE = r'(?P<DATE>(?P<year>\d{4})+[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2}))'
-NL = r'(?P<NL>\n)'
-WS = r'(?P<WS>\s+)'
-ST = r'(?P<ST>\*)'
-WORD = r'(?P<WORD>\w+)'
-NEG = r'(?P<NEG>\-)'
-COLON = r'(?P<COLON>:)'
-PRICE = r'(?P<PRICE>(?P<currency>[\u00a3])?(P=NEG)?\d+(?:\.\d{1,2})?)'
+DATE = r"(?P<DATE>(?P<year>\d{4})+[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2}))"
+NL = r"(?P<NL>\n)"
+WS = r"(?P<WS>\s+)"
+ST = r"(?P<ST>\*)"
+WORD = r"(?P<WORD>\w+)"
+NEG = r"(?P<NEG>\-)"
+COLON = r"(?P<COLON>:)"
+PRICE = r"(?P<PRICE>(?P<currency>[\u00a3])?(P=NEG)?\d+(?:\.\d{1,2})?)"
 
-master_pat = re.compile('|'.join([NEG, NL, DATE, PRICE, COLON, WS, ST, WORD]))
+master_pat = re.compile("|".join([NEG, NL, DATE, PRICE, COLON, WS, ST, WORD]))
 
 
 class Token(NamedTuple):
@@ -24,9 +26,16 @@ class Token(NamedTuple):
     value: str
 
 
-def generate_tokens(text):
-    scanner = master_pat.scanner(text)
-    for m in iter(scanner.match, None):
+"""
+What follows is the use of re.scanner(), which is undocumented. I got this from the Python 3 Cookbook.
+See: https://stackoverflow.com/questions/37075691/method-regex-scanner-cannot-be-found-in-the-python-3-5-1-documentation-but-th
+You might read this in the future, at which point `scanner()` has been
+removed by `finditer()`.
+"""
+
+
+def generate_tokens(text) -> Iterable:
+    for m in master_pat.finditer(text):
         yield Token(m.lastgroup, m.group())
 
 
@@ -45,13 +54,7 @@ class Transaction:
     http://hledger.org/manual.html#journal-format
     """
 
-    def __init__(
-            self,
-            date: str,
-            status: str,
-            code: str,
-            description: str
-    ):
+    def __init__(self, date: str, status: str, code: str, description: str):
         self.date = splat_date_str(date)
         self.date_str = date
         self.status = status
@@ -65,22 +68,20 @@ class Transaction:
 
 class BankCSVLine(NamedTuple):
     """Represents a single line in a CSV file downloaded from the bank."""
+
     date: datetime.date
     description: str
     transaction_type: str
     total: float
 
     def __repr__(self):
-        return f'<LedgerLine - {self.date}: {self.description}, {self.transaction_type} -> {self.total}>'
+        return f"<LedgerLine - {self.date}: {self.description}, {self.transaction_type} -> {self.total}>"
 
 
 def splat_date_str(d: str) -> datetime.date:
     """Converts a date string in format "dd/mm/yyyy" to a datetime.date obj."""
-    d_list = d.split('/')
-    return datetime.date(
-        int(d_list[2]),
-        int(d_list[1]),
-        int(d_list[0]))
+    d_list = d.split("/")
+    return datetime.date(int(d_list[2]), int(d_list[1]), int(d_list[0]))
 
 
 def parse_csv(csv_file) -> list:
@@ -90,13 +91,17 @@ def parse_csv(csv_file) -> list:
     :param csv_file:
     :return:
     """
-    with open(csv_file, 'r') as cf:
+    with open(csv_file, "r") as cf:
         csv_reader = csv.reader(cf)
-        return [BankCSVLine(
-            date=splat_date_str(line[0]),
-            description=line[1],
-            transaction_type=line[2],
-            total=float(line[3])) for line in csv_reader]
+        return [
+            BankCSVLine(
+                date=splat_date_str(line[0]),
+                description=line[1],
+                transaction_type=line[2],
+                total=float(line[3]),
+            )
+            for line in csv_reader
+        ]
 
 
 def date_format_checker(date: str) -> bool:
@@ -108,15 +113,28 @@ def date_format_checker(date: str) -> bool:
     """
     m = re.match(journal_date_regex, date)
     if m:
-        if int(m.group('month')) <= 12:
-            if m.group('month') in ['1', '01', '3', '03', '5', '05', '7', '07', '8', '08', '10', '12']:
-                if not int(m.group('day')) <= int('31'):
+        if int(m.group("month")) <= 12:
+            if m.group("month") in [
+                "1",
+                "01",
+                "3",
+                "03",
+                "5",
+                "05",
+                "7",
+                "07",
+                "8",
+                "08",
+                "10",
+                "12",
+            ]:
+                if not int(m.group("day")) <= int("31"):
                     return False
-            if m.group('month') in ['4', '04', '6', '06', '9', '09', '11']:
-                if not int(m.group('day')) <= int('30'):
+            if m.group("month") in ["4", "04", "6", "06", "9", "09", "11"]:
+                if not int(m.group("day")) <= int("30"):
                     return False
-            if m.group('month') in ['2', '02']:
-                if m.group('day') not in ['28', '29']:
+            if m.group("month") in ["2", "02"]:
+                if m.group("day") not in ["28", "29"]:
                     return False
         else:
             return False

@@ -9,27 +9,32 @@ import pledgertools.pledger as pledger
 
 TMP_DIR = gettempdir()
 
-JOURNAL_ENTRY = ("2017/07/05 * Tiger stuff\n"
-                 "expenses:joanna business:materials                  12.00\n"
-                 "assets:hsbc current                                 -12.0\n")
-JOURNAL_ENTRY2 = ("2017/07/06 * McDonalds LUNCH\n"
-                  "expenses:food:fast food                              £5.99\n"
-                  "assets:hsbc current                                 £-5.99\n")
+JOURNAL_ENTRY = (
+    "2017/07/05 * Tiger stuff\n"
+    "expenses:joanna business:materials                  12.00\n"
+    "assets:hsbc current                                 -12.0\n"
+)
+JOURNAL_ENTRY2 = (
+    "2017/07/06 * McDonalds LUNCH\n"
+    "expenses:food:fast food                              £5.99\n"
+    "assets:hsbc current                                 £-5.99\n"
+)
 
 MERGED_JOURNAL = "\n".join([JOURNAL_ENTRY, JOURNAL_ENTRY2])
+
 
 @pytest.fixture
 def cleaned_csv_file() -> None:
     """
     Mocks a cleaned csv downloaded from HSBC.
     """
-    with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
+    with open(os.path.join(TMP_DIR, "test_journal"), "w") as tf:
         tf.write("28/06/2017,SAINSBURYS S/MKTS LONDON  SE12,VIS,-6.20\n")
         tf.write("28/06/2017,WWW.CALMAC.CO.UK INTERNET,VIS,-49.00\n")
         tf.write("28/06/2017,VODAFONE LTD,DD,-26.35\n")
         tf.write("27/06/2017,VIRGINTRAINSEC SER YORK 4400,VIS,-86.00\n")
-    yield os.path.join(TMP_DIR, 'test_journal')
-    os.unlink(os.path.join(TMP_DIR, 'test_journal'))
+    yield os.path.join(TMP_DIR, "test_journal")
+    os.unlink(os.path.join(TMP_DIR, "test_journal"))
 
 
 @pytest.fixture
@@ -38,10 +43,10 @@ def incorrect_first_field() -> None:
     Mocks a cleaned csv file downloaded from HSCB but includes fields that
     are the incorrect type.
     """
-    with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
+    with open(os.path.join(TMP_DIR, "test_journal"), "w") as tf:
         tf.write("2017,SAINSBURYS S/MKTS LONDON  SE12,VIS,WRONG\n")
-    yield os.path.join(TMP_DIR, 'test_journal')
-    os.unlink(os.path.join(TMP_DIR, 'test_journal'))
+    yield os.path.join(TMP_DIR, "test_journal")
+    os.unlink(os.path.join(TMP_DIR, "test_journal"))
 
 
 @pytest.fixture
@@ -50,10 +55,10 @@ def incorrect_second_field() -> None:
     Mocks a cleaned csv file downloaded from HSCB but includes fields that
     are the incorrect type.
     """
-    with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
+    with open(os.path.join(TMP_DIR, "test_journal"), "w") as tf:
         tf.write("28/06/2017,23.1,SAINSBURYS S/MKTS LONDON  SE12,VIS,-6.20\n")
-    yield os.path.join(TMP_DIR, 'test_journal')
-    os.unlink(os.path.join(TMP_DIR, 'test_journal'))
+    yield os.path.join(TMP_DIR, "test_journal")
+    os.unlink(os.path.join(TMP_DIR, "test_journal"))
 
 
 @pytest.fixture
@@ -62,10 +67,10 @@ def incorrect_third_field() -> None:
     Mocks a cleaned csv file downloaded from HSCB but includes fields that
     are the incorrect type.
     """
-    with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
+    with open(os.path.join(TMP_DIR, "test_journal"), "w") as tf:
         tf.write("28/06/2017,SAINSBURYS S/MKTS LONDON  SE12,20,VIS,-6.20\n")
-    yield os.path.join(TMP_DIR, 'test_journal')
-    os.unlink(os.path.join(TMP_DIR, 'test_journal'))
+    yield os.path.join(TMP_DIR, "test_journal")
+    os.unlink(os.path.join(TMP_DIR, "test_journal"))
 
 
 @pytest.fixture
@@ -74,21 +79,23 @@ def incorrect_fourth_field() -> None:
     Mocks a cleaned csv file downloaded from HSCB but includes fields that
     are the incorrect type.
     """
-    with open(os.path.join(TMP_DIR, 'test_journal'), 'w') as tf:
+    with open(os.path.join(TMP_DIR, "test_journal"), "w") as tf:
         tf.write("28/06/2017,SAINSBURYS S/MKTS LONDON  SE12,VIS,WRONG\n")
-    yield os.path.join(TMP_DIR, 'test_journal')
-    os.unlink(os.path.join(TMP_DIR, 'test_journal'))
+    yield os.path.join(TMP_DIR, "test_journal")
+    os.unlink(os.path.join(TMP_DIR, "test_journal"))
 
 
 @pytest.fixture
 def journal() -> None:
-    f = os.path.join(TMP_DIR, 'test_ledger_journal')
-    with open(f, 'w') as tf:
-        tf.write("""
+    f = os.path.join(TMP_DIR, "test_ledger_journal")
+    with open(f, "w") as tf:
+        tf.write(
+            """
         2017/06/30 Zipadee Celery Ltd
             expenses:gifts                      12.90
             assets:hsbc current                 -12.90
-        """)
+        """
+        )
         tf.write(MERGED_JOURNAL)
     yield f
     os.unlink(f)
@@ -143,25 +150,25 @@ def test_fourth_field_is_wrong_type(incorrect_fourth_field) -> None:
 
 
 def test_journal_date_regex() -> None:
-    d_reg = re.match(pledger.journal_date_regex, '2016/06/30')
+    d_reg = re.match(pledger.journal_date_regex, "2016/06/30")
     assert d_reg
 
 
 def test_bad_date() -> None:
-    assert not pledger.date_format_checker('2016/13/01')
-    assert not pledger.date_format_checker('2016/20/03')
-    assert not pledger.date_format_checker('2016/12/32')
-    assert not pledger.date_format_checker('2016/14/32')
+    assert not pledger.date_format_checker("2016/13/01")
+    assert not pledger.date_format_checker("2016/20/03")
+    assert not pledger.date_format_checker("2016/12/32")
+    assert not pledger.date_format_checker("2016/14/32")
 
 
 def test_good_date() -> None:
-    assert pledger.date_format_checker('2016/01/01')
-    assert pledger.date_format_checker('2016/02/29')
+    assert pledger.date_format_checker("2016/01/01")
+    assert pledger.date_format_checker("2016/02/29")
 
 
 def test_good_month_bad_day() -> None:
-    assert not pledger.date_format_checker('2016/02/30')
-    assert not pledger.date_format_checker('2017/04/31')
+    assert not pledger.date_format_checker("2016/02/30")
+    assert not pledger.date_format_checker("2017/04/31")
 
 
 def test_token_parse_text_types() -> None:
@@ -187,25 +194,26 @@ def test_token_parse_text_types() -> None:
 
 def test_token_parse_text_values() -> None:
     p = pledger.generate_tokens(JOURNAL_ENTRY)
-    assert next(p).value == '2017/07/05'
-    assert next(p).value == ' '
-    assert next(p).value == '*'
-    assert next(p).value == ' '
-    assert next(p).value == 'Tiger'
-    assert next(p).value == ' '
-    assert next(p).value == 'stuff'
-    assert next(p).value == '\n'
+    assert next(p).value == "2017/07/05"
+    assert next(p).value == " "
+    assert next(p).value == "*"
+    assert next(p).value == " "
+    assert next(p).value == "Tiger"
+    assert next(p).value == " "
+    assert next(p).value == "stuff"
+    assert next(p).value == "\n"
     assert next(p).value == "expenses"
     assert next(p).value == ":"
     assert next(p).value == "joanna"
-    assert next(p).value == ' '
+    assert next(p).value == " "
     assert next(p).value == "business"
 
 
 def test_token_parse_negative_currency() -> None:
     p = pledger.generate_tokens(JOURNAL_ENTRY2)
     pl = list(p)
-    assert pl[-1] == pledger.Token(type='NL', value='\n')
+    assert pl[-1] == pledger.Token(type="NL", value="\n")
+
 
 def test_detect_currency_symbol() -> None:
     """
