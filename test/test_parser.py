@@ -2,6 +2,7 @@ import os
 import re
 from datetime import date
 from tempfile import gettempdir
+from typing import Generator
 
 import pytest
 
@@ -24,7 +25,7 @@ MERGED_JOURNAL = "\n".join([JOURNAL_ENTRY, JOURNAL_ENTRY2])
 
 
 @pytest.fixture
-def cleaned_csv_file() -> None:
+def cleaned_csv_file() -> Generator:
     """
     Mocks a cleaned csv downloaded from HSBC.
     """
@@ -38,7 +39,7 @@ def cleaned_csv_file() -> None:
 
 
 @pytest.fixture
-def incorrect_first_field() -> None:
+def incorrect_first_field() -> Generator:
     """
     Mocks a cleaned csv file downloaded from HSCB but includes fields that
     are the incorrect type.
@@ -50,7 +51,7 @@ def incorrect_first_field() -> None:
 
 
 @pytest.fixture
-def incorrect_second_field() -> None:
+def incorrect_second_field() -> Generator:
     """
     Mocks a cleaned csv file downloaded from HSCB but includes fields that
     are the incorrect type.
@@ -62,7 +63,7 @@ def incorrect_second_field() -> None:
 
 
 @pytest.fixture
-def incorrect_third_field() -> None:
+def incorrect_third_field() -> Generator:
     """
     Mocks a cleaned csv file downloaded from HSCB but includes fields that
     are the incorrect type.
@@ -74,7 +75,7 @@ def incorrect_third_field() -> None:
 
 
 @pytest.fixture
-def incorrect_fourth_field() -> None:
+def incorrect_fourth_field() -> Generator:
     """
     Mocks a cleaned csv file downloaded from HSCB but includes fields that
     are the incorrect type.
@@ -86,7 +87,7 @@ def incorrect_fourth_field() -> None:
 
 
 @pytest.fixture
-def journal() -> None:
+def journal() -> Generator:
     f = os.path.join(TMP_DIR, "test_ledger_journal")
     with open(f, "w") as tf:
         tf.write(
@@ -171,7 +172,7 @@ def test_good_month_bad_day() -> None:
     assert not parser.date_format_checker("2017/04/31")
 
 
-def test_token_parse_text_types() -> None:
+def test_token_parse_text_types():
     p = parser.generate_tokens(JOURNAL_ENTRY)
     assert next(p).type == "DATE"
     assert next(p).type == "WS"
@@ -192,7 +193,7 @@ def test_token_parse_text_types() -> None:
     assert next(p).type == "PRICE"
 
 
-def test_token_parse_text_values() -> None:
+def test_token_parse_text_values():
     p = parser.generate_tokens(JOURNAL_ENTRY)
     assert next(p).value == "2017/07/05"
     assert next(p).value == " "
@@ -225,16 +226,21 @@ def test_detect_currency_symbol() -> None:
     d = "$4.32"
     e = "\u20ac69.34"  # EURO symbol
     ps = "\u20b1200.23"  # Peso symbol
-    assert parser.detect_currency_symbol(p) == True
-    assert parser.detect_currency_symbol(d) == True
-    assert parser.detect_currency_symbol(e) == True
-    assert parser.detect_currency_symbol(ps) == True
+    assert parser.detect_currency_symbol(p) is True
+    assert parser.detect_currency_symbol(d) is True
+    assert parser.detect_currency_symbol(e) is True
+    assert parser.detect_currency_symbol(ps) is True
 
 
 def test_merged_journal() -> None:
     p = parser.generate_tokens(MERGED_JOURNAL)
     pl = list(p)
     assert True  # TODO finish this test
+
+
+def test_total_formatter(cleaned_csv_file) -> None:
+    parsed = parser.parse_csv(cleaned_csv_file)
+    assert (parser.total_formatter(parsed[0])) == "£6.2"
 
 
 def test_create_journal_entry_from_csv_line(cleaned_csv_file) -> None:
@@ -256,4 +262,5 @@ def test_create_journal_entry_from_csv_line(cleaned_csv_file) -> None:
     journal_entry = parser.journal_from_parsed_csv_line(parsed[0])
     # First line of journal
     assert journal_entry.date == date(2017, 6, 28)
-    assert journal_entry.components[0] == "28/6/2017 * Sainsbury's Food Shopping"
+    assert journal_entry.description_line == "28/6/2017 * Sainsbury's Food Shopping"
+    assert journal_entry.middle_line == "Expenses:Food:Groceries\t£6.2"

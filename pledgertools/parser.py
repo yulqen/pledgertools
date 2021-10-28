@@ -1,10 +1,10 @@
 import csv
 import datetime
 import re
-import datetime
 import unicodedata
 from reprlib import repr
 from typing import NamedTuple, Iterable, List
+from enum import Enum, auto
 
 journal_date_regex = re.compile(
     r"^(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2})"
@@ -21,8 +21,18 @@ PRICE = r"(?P<PRICE>(?P<currency>[\u00a3])?(P=NEG)?\d+(?:\.\d{1,2})?)"
 
 master_pat = re.compile("|".join([NEG, NL, DATE, PRICE, COLON, WS, ST, WORD]))
 
+
+class TransactionType(Enum):
+    EXPENSE = auto
+    INCOME = auto
+
+
 TRANSACTION_DESCRIPTORS = {
-    "SAINSBURYS S/MKTS LONDON  SE12": "Sainsbury's Food Shopping"
+    "SAINSBURYS S/MKTS LONDON  SE12": (
+        "Sainsbury's Food Shopping",
+        "Expenses:Food:Groceries",
+        TransactionType.EXPENSE,
+    )
 }
 
 
@@ -148,27 +158,46 @@ def parse_journal(journal_file) -> list:
     pass
 
 
+def total_formatter(parsed_csv_line: BankCSVLine) -> str:
+    total = str(parsed_csv_line.total)
+    if TRANSACTION_DESCRIPTORS[parsed_csv_line[1]][2] == TransactionType.EXPENSE:
+        return "".join(["£", total[1:]])
+    else:
+        return "".join(["£", total])
+
+
 def journal_from_parsed_csv_line(parsed_csv_line: BankCSVLine) -> str:
     class JournalEntry(NamedTuple):
         date: datetime.date
-        components: List[str]
+        description_line: str
+        middle_line: str
 
-    components = []  # strings (three) for each line in the journal
-    components.append(
-        " ".join(
-            [
-                "/".join(
-                    [
-                        str(parsed_csv_line.date.day),
-                        str(parsed_csv_line.date.month),
-                        str(parsed_csv_line.date.year),
-                    ]
-                ),
-                "*",
-                TRANSACTION_DESCRIPTORS[
-                    parsed_csv_line[1]
-                ],  # looking for SAINBURYS S/MKTS LONDON  SE12
-            ]
-        )
+    description_line = " ".join(
+        [
+            "/".join(
+                [
+                    str(parsed_csv_line.date.day),
+                    str(parsed_csv_line.date.month),
+                    str(parsed_csv_line.date.year),
+                ]
+            ),
+            "*",
+            TRANSACTION_DESCRIPTORS[parsed_csv_line[1]][
+                0
+            ],  # looking for SAINBURYS S/MKTS LONDON  SE12
+        ]
     )
-    return JournalEntry(date=parsed_csv_line.date, components=components)
+
+    middle_line = "".join(
+        [
+            TRANSACTION_DESCRIPTORS[parsed_csv_line[1]][1],
+            "\t",
+            str(total_formatter(parsed_csv_line)),
+        ]
+    )
+
+    return JournalEntry(
+        date=parsed_csv_line.date,
+        description_line=description_line,
+        middle_line=middle_line,
+    )
