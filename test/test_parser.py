@@ -243,7 +243,7 @@ def test_create_journal_entry_from_csv_line(cleaned_csv_file) -> None:
     28/06/2017,SAINSBURYS S/MKTS LONDON  SE12,VIS,-6.20
 
     It should return:
-    28/6/21 * Sainsbury's Food Shopping
+    28/6/17 * Sainsbury's Food Shopping
     Expenses:Food:Groceries             £6.20
     Assets:MyBank:Current
 
@@ -256,3 +256,4 @@ def test_create_journal_entry_from_csv_line(cleaned_csv_file) -> None:
     journal_entry = parser.journal_from_parsed_csv_line(parsed[0])
     # First line of journal
     assert journal_entry.date == date(2017, 6, 28)
+    assert journal_entry.components[0] == "28/6/2017 * Sainsbury's Food Shopping"
