@@ -235,3 +235,24 @@ def test_merged_journal() -> None:
     p = parser.generate_tokens(MERGED_JOURNAL)
     pl = list(p)
     assert True  # TODO finish this test
+
+
+def test_create_journal_entry_from_csv_line(cleaned_csv_file) -> None:
+    """
+    This is the line I want to parse:
+    28/06/2017,SAINSBURYS S/MKTS LONDON  SE12,VIS,-6.20
+
+    It should return:
+    28/6/21 * Sainsbury's Food Shopping
+    Expenses:Food:Groceries             £6.20
+    Assets:MyBank:Current
+
+    given the additional variables, somewhere:
+        cleared = True (the asterisk)
+        SAINSBURYS S/MKTS LONDON  SE12 found to match Sainsbur's Food Shopping
+        bucket = True (removing the need to explicitly balance
+    """
+    parsed = parser.parse_csv(cleaned_csv_file)
+    journal_entry = parser.journal_from_parsed_csv_line(parsed[0])
+    # First line of journal
+    assert journal_entry.date == date(2017, 6, 28)

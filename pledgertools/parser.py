@@ -1,9 +1,10 @@
 import csv
 import datetime
 import re
+import datetime
 import unicodedata
 from reprlib import repr
-from typing import NamedTuple, Iterable
+from typing import NamedTuple, Iterable, List
 
 journal_date_regex = re.compile(
     r"^(?P<year>\d{4})?[\/\-\.]?(?P<month>\d{2})[\/\.\-](?P<day>\d{1,2})"
@@ -19,6 +20,8 @@ COLON = r"(?P<COLON>:)"
 PRICE = r"(?P<PRICE>(?P<currency>[\u00a3])?(P=NEG)?\d+(?:\.\d{1,2})?)"
 
 master_pat = re.compile("|".join([NEG, NL, DATE, PRICE, COLON, WS, ST, WORD]))
+
+TRANSACTION_DESCRIPTORS = {"SAINBURYS S/MKTS LONDON  SE12": "Sainsbury's Food Shopping"}
 
 
 class Token(NamedTuple):
@@ -75,7 +78,7 @@ class BankCSVLine(NamedTuple):
     total: float
 
     def __repr__(self):
-        return f"<LedgerLine - {self.date}: {self.description}, {self.transaction_type} -> {self.total}>"
+        return f"<BankCVSLine - {self.date}: {self.description}, {self.transaction_type} -> {self.total}>"
 
 
 def splat_date_str(d: str) -> datetime.date:
@@ -84,12 +87,10 @@ def splat_date_str(d: str) -> datetime.date:
     return datetime.date(int(d_list[2]), int(d_list[1]), int(d_list[0]))
 
 
-def parse_csv(csv_file) -> list:
+def parse_csv(csv_file) -> List[BankCSVLine]:
     """
     Parses the CSV file made available at HSBC (following cleaning) into
     a list of BankCSVLine objects which hold data about the transaction.
-    :param csv_file:
-    :return:
     """
     with open(csv_file, "r", encoding="utf8") as cf:
         csv_reader = csv.reader(cf)
@@ -143,3 +144,10 @@ def date_format_checker(date: str) -> bool:
 
 def parse_journal(journal_file) -> list:
     pass
+
+
+def journal_from_parsed_csv_line(parsed_csv_line: BankCSVLine) -> str:
+    class JournalEntry(NamedTuple):
+        date: datetime.date
+
+    return JournalEntry(date=parsed_csv_line.date)
