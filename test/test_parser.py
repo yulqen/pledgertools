@@ -5,7 +5,7 @@ from tempfile import gettempdir
 
 import pytest
 
-import pledgertools.pledger as pledger
+import pledgertools.parser as parser
 
 TMP_DIR = gettempdir()
 
@@ -102,27 +102,27 @@ def journal() -> None:
 
 
 def test_date(cleaned_csv_file) -> None:
-    parsed = pledger.parse_csv(cleaned_csv_file)
+    parsed = parser.parse_csv(cleaned_csv_file)
     assert parsed[0].date == date(2017, 6, 28)
     assert parsed[3].date == date(2017, 6, 27)
 
 
 def test_description(cleaned_csv_file) -> None:
-    parsed = pledger.parse_csv(cleaned_csv_file)
+    parsed = parser.parse_csv(cleaned_csv_file)
     assert parsed[0].description == "SAINSBURYS S/MKTS LONDON  SE12"
     assert parsed[1].description == "WWW.CALMAC.CO.UK INTERNET"
     assert parsed[2].description == "VODAFONE LTD"
 
 
 def test_transaction_type(cleaned_csv_file) -> None:
-    parsed = pledger.parse_csv(cleaned_csv_file)
+    parsed = parser.parse_csv(cleaned_csv_file)
     assert parsed[0].transaction_type == "VIS"
     assert parsed[1].transaction_type == "VIS"
     assert parsed[2].transaction_type == "DD"
 
 
 def test_cost_amount(cleaned_csv_file) -> None:
-    parsed = pledger.parse_csv(cleaned_csv_file)
+    parsed = parser.parse_csv(cleaned_csv_file)
     assert parsed[0].total == -6.20
     assert parsed[1].total == -49.00
     assert parsed[2].total == -26.35
@@ -131,48 +131,48 @@ def test_cost_amount(cleaned_csv_file) -> None:
 
 def test_first_field_is_not_date(incorrect_first_field) -> None:
     with pytest.raises(IndexError):
-        pledger.parse_csv(incorrect_first_field)
+        parser.parse_csv(incorrect_first_field)
 
 
 def test_second_field_is_wrong_type(incorrect_second_field) -> None:
     with pytest.raises(ValueError):
-        pledger.parse_csv(incorrect_second_field)
+        parser.parse_csv(incorrect_second_field)
 
 
 def test_third_field_is_wrong_type(incorrect_third_field) -> None:
     with pytest.raises(ValueError):
-        pledger.parse_csv(incorrect_third_field)
+        parser.parse_csv(incorrect_third_field)
 
 
 def test_fourth_field_is_wrong_type(incorrect_fourth_field) -> None:
     with pytest.raises(ValueError):
-        pledger.parse_csv(incorrect_fourth_field)
+        parser.parse_csv(incorrect_fourth_field)
 
 
 def test_journal_date_regex() -> None:
-    d_reg = re.match(pledger.journal_date_regex, "2016/06/30")
+    d_reg = re.match(parser.journal_date_regex, "2016/06/30")
     assert d_reg
 
 
 def test_bad_date() -> None:
-    assert not pledger.date_format_checker("2016/13/01")
-    assert not pledger.date_format_checker("2016/20/03")
-    assert not pledger.date_format_checker("2016/12/32")
-    assert not pledger.date_format_checker("2016/14/32")
+    assert not parser.date_format_checker("2016/13/01")
+    assert not parser.date_format_checker("2016/20/03")
+    assert not parser.date_format_checker("2016/12/32")
+    assert not parser.date_format_checker("2016/14/32")
 
 
 def test_good_date() -> None:
-    assert pledger.date_format_checker("2016/01/01")
-    assert pledger.date_format_checker("2016/02/29")
+    assert parser.date_format_checker("2016/01/01")
+    assert parser.date_format_checker("2016/02/29")
 
 
 def test_good_month_bad_day() -> None:
-    assert not pledger.date_format_checker("2016/02/30")
-    assert not pledger.date_format_checker("2017/04/31")
+    assert not parser.date_format_checker("2016/02/30")
+    assert not parser.date_format_checker("2017/04/31")
 
 
 def test_token_parse_text_types() -> None:
-    p = pledger.generate_tokens(JOURNAL_ENTRY)
+    p = parser.generate_tokens(JOURNAL_ENTRY)
     assert next(p).type == "DATE"
     assert next(p).type == "WS"
     assert next(p).type == "ST"
@@ -193,7 +193,7 @@ def test_token_parse_text_types() -> None:
 
 
 def test_token_parse_text_values() -> None:
-    p = pledger.generate_tokens(JOURNAL_ENTRY)
+    p = parser.generate_tokens(JOURNAL_ENTRY)
     assert next(p).value == "2017/07/05"
     assert next(p).value == " "
     assert next(p).value == "*"
@@ -210,9 +210,9 @@ def test_token_parse_text_values() -> None:
 
 
 def test_token_parse_negative_currency() -> None:
-    p = pledger.generate_tokens(JOURNAL_ENTRY2)
+    p = parser.generate_tokens(JOURNAL_ENTRY2)
     pl = list(p)
-    assert pl[-1] == pledger.Token(type="NL", value="\n")
+    assert pl[-1] == parser.Token(type="NL", value="\n")
 
 
 def test_detect_currency_symbol() -> None:
@@ -225,13 +225,13 @@ def test_detect_currency_symbol() -> None:
     d = "$4.32"
     e = "\u20ac69.34"  # EURO symbol
     ps = "\u20b1200.23"  # Peso symbol
-    assert pledger.detect_currency_symbol(p) == True
-    assert pledger.detect_currency_symbol(d) == True
-    assert pledger.detect_currency_symbol(e) == True
-    assert pledger.detect_currency_symbol(ps) == True
+    assert parser.detect_currency_symbol(p) == True
+    assert parser.detect_currency_symbol(d) == True
+    assert parser.detect_currency_symbol(e) == True
+    assert parser.detect_currency_symbol(ps) == True
 
 
 def test_merged_journal() -> None:
-    p = pledger.generate_tokens(MERGED_JOURNAL)
+    p = parser.generate_tokens(MERGED_JOURNAL)
     pl = list(p)
     assert True  # TODO finish this test
