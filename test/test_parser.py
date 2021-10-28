@@ -234,4 +234,4 @@ def test_detect_currency_symbol() -> None:
 def test_merged_journal() -> None:
     p = pledger.generate_tokens(MERGED_JOURNAL)
     pl = list(p)
-    print(pl)
+    assert True  # TODO finish this test
